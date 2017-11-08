@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Analyzer {
+class Analyzer {
     private String sourceFileName;
     private String destinationFileName;
 
@@ -20,9 +20,9 @@ public class Analyzer {
     }
 
 
-    public void parse() {
-        Map<String, Integer> mapDomains = new HashMap<String, Integer>();
-        Map<String, Integer> mapPath = new HashMap<String, Integer>();
+    void parse() {
+        Map<String, Integer> mapDomains = new HashMap<>();
+        Map<String, Integer> mapPath = new HashMap<>();
         int numDomainsFound = 0;
         try {
             File file = new File(sourceFileName);
@@ -42,65 +42,46 @@ public class Analyzer {
             e.printStackTrace();
         }
 
-        printResults(numDomainsFound, mapDomains, mapPath);
+        System.out.println(
+                printResults(numDomainsFound, mapDomains, mapPath)
+        );
+        saveResults( printResults(numDomainsFound, mapDomains, mapPath) );
 
     }
-/*
-    private void saveResults(int numDomainsFound, Map<String,Integer> mDomains,
-                              Map<String,Integer> mPaths) {
-        try (FileOutputStream fop = new FileOutputStream(destinationFileName)) {
-            fop.write(contentInBytes);
-            fop.flush();
-            fop.close();
 
-            System.out.println("Done");
 
-        } catch (IOException e) {
-            e.printStackTrace(); //cannot open dest file
+    private void saveResults(String results) {
+        try {
+            BufferedWriter out = new BufferedWriter(
+                    new FileWriter(destinationFileName));
+            out.write(results);
+            out.close();
         }
-
-
-
-
-        System.out.println("Total URLs:" + numDomainsFound);
-        System.out.println("Total domains:" + mDomains.size());
-        System.out.println("Total paths:" + mPaths.size());
-
-
-        System.out.println("\nTop domains:");
-        for(Map.Entry<String, Integer>  x : mDomains.entrySet()) {
-            System.out.println(x.getValue() + " " + x.getKey());
+        catch (IOException e) {
+            e.printStackTrace();
         }
-
-        System.out.println("\nTop paths:");
-        for(Map.Entry<String, Integer>  x : mPaths.entrySet()) {
-            System.out.println(x.getValue() + " " + x.getKey() );
-        }
-
-        System.out.println("");
     }
-*/
 
-    private void printResults(int numDomainsFound, Map<String,Integer> mDomains,
+
+    private String printResults(int numDomainsFound, Map<String,Integer> mDomains,
             Map<String,Integer> mPaths) {
         StringBuilder builder = new StringBuilder();
 
-        System.out.println("Total URLs:" + numDomainsFound);
-        System.out.println("Total domains:" + mDomains.size());
-        System.out.println("Total paths:" + mPaths.size());
+        builder.append("\nTotal URLs:").append(numDomainsFound);
+        builder.append("\nTotal domains:").append(mDomains.size());
+        builder.append("\nTotal paths:").append(mPaths.size());
 
-
-        System.out.println("\nTop domains:");
+        builder.append("\n\nTop domains:");
         for(Map.Entry<String, Integer>  x : mDomains.entrySet()) {
-            System.out.println(x.getValue() + " " + x.getKey());
+            builder.append("\n").append(x.getValue()).append(" ").append(x.getKey());
         }
 
-        System.out.println("\nTop paths:");
+        builder.append("\n\nTop paths:");
         for(Map.Entry<String, Integer>  x : mPaths.entrySet()) {
-            System.out.println(x.getValue() + " " + x.getKey() );
+            builder.append("\n").append(x.getValue()).append(" ").append(x.getKey() );
         }
 
-        System.out.println("");
+        return builder.toString();
     }
 
     private void setHitForItem(Map<String, Integer> map, String item) {
