@@ -20,6 +20,9 @@ class Analyzer {
     }
 
 
+    /**
+     * Parse the input file and creates the output result file
+     */
     void parse() {
         Map<String, Integer> mapDomains = new HashMap<>();
         Map<String, Integer> mapPath = new HashMap<>();
@@ -33,13 +36,13 @@ class Analyzer {
                 List<URL> lUrls = extractUrls(line);
                 numDomainsFound += lUrls.size();
                 for (URL u : lUrls) {
-                    setHitForItem(mapDomains, u.getHost() );
-                    setHitForItem(mapPath, u.getPath() );
+                    mapDomains.merge(u.getHost(),1, Integer::sum);
+                    mapPath.merge(u.getPath(),1, Integer::sum);
                 }
             }
             fileReader.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace(); //cannot open source
         }
 
         System.out.println(
@@ -50,6 +53,10 @@ class Analyzer {
     }
 
 
+    /**
+     * save the string results into a file
+     * @param results the string to be saved
+     */
     private void saveResults(String results) {
         try {
             BufferedWriter out = new BufferedWriter(
@@ -63,6 +70,13 @@ class Analyzer {
     }
 
 
+    /**
+     * return a string with the formatted output
+     * @param numDomainsFound  number of found domains
+     * @param mDomains the Map of unique Domains
+     * @param mPaths the map of unique Paths
+     * @return a String containing the formatted output
+     */
     private String printResults(int numDomainsFound, Map<String,Integer> mDomains,
             Map<String,Integer> mPaths) {
         StringBuilder builder = new StringBuilder();
@@ -84,13 +98,6 @@ class Analyzer {
         return builder.toString();
     }
 
-    private void setHitForItem(Map<String, Integer> map, String item) {
-        if(map.get(item) == null){
-            map.put(item,1);
-        }else{
-            map.put(item, map.get(item) + 1);
-        }
-    }
 
     /**
      * Returns a list with all links contained in the input
@@ -104,7 +111,6 @@ class Analyzer {
         while (urlMatcher.find())
         {
             try {
-
                 containedUrls.add(new URL(
                                 text.substring(urlMatcher.start(0),
                                         urlMatcher.end(0))
